@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+langchain
+langgraph
+chromadb
+psycopg2-binary
+alembic
+python-dotenv
+pydantic
