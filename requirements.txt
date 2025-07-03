@@ -7,3 +7,48 @@ psycopg2-binary
 alembic
 python-dotenv
 pydantic
+dotenv
+sqlalchemy.orm
+sqlalchemy.ext
+python-jose passlib[bcrypt]
+pydantic[email]
+bcrypt==4.0.1
+langchain-community 
+sentence-transformers 
+pypdf
+langchain-ollama
+langchain-huggingface
+langchain-chroma
+
+
+# 🧠 Core IA & LLM
+langchain==0.1.14
+langchain-community>=0.0.24
+sentence-transformers==2.2.2
+chromadb==0.4.24
+transformers>=4.38.0
+
+# 🧪 Backend API
+fastapi==0.110.0
+uvicorn[standard]==0.27.1
+python-dotenv==1.0.1
+
+# 🔐 Auth
+passlib[bcrypt]==1.7.4
+python-jose==3.3.0
+
+# 🐘 PostgreSQL + ORM
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# 📚 PDF & Doc handling
+PyPDF2==3.0.1
+pdfminer.six==20221105
+
+# ⚙️ Outils utils
+tqdm==4.66.2
+pydantic==2.6.4
+
+# ✅ Sécurité et typage
+typing-extensions>=4.9.0

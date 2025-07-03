@@ -205,3 +205,27 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# 🔐 Données privées
+data/*.pdf
+data/*.md
+data/*.json
+data/vectorstore/
+# 🔐 Fichiers confidentiels (non versionnés)
+data/secret_sources.txt
+data/pdf/*.pdf
+
+
+# 🧠 Fichiers de base de connaissance vectorisée
+**/vectorstore/
+!data/vectorstore/.gitkeep
+
+# 🔄 Environnements et secrets
+.env
+__pycache__/
+*.pyc
+
+# 🔄 Virtuel
+.venv/
+env/

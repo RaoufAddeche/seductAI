@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    restart: always
+    container_name: seductai-db
+    environment:
+      POSTGRES_USER: seductai
+      POSTGRES_PASSWORD: seductai
+      POSTGRES_DB: seductai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+
+  #🚀 Avantages concrets pour TON projet SeductAI :
+# 1. Tu crées un environnement reproductible
+
+#     Peu importe où tu exécutes ton projet (local, cloud, stage, prod) → tout marchera pareil
+#     ✔️ Tu évites le “chez moi ça marche”
+
+# 2. Tu sépares tes services cleanement
+
+#     Ex : PostgreSQL tourne dans un conteneur isolé, pas sur ton OS
+#     ✔️ Tu peux reset / restart / monitorer sans polluer ton PC
+
+# 3. Tu évites d’installer Postgres à la main
+
+#     Pas besoin de créer la DB localement, pas de conflit de version
+#     ✔️ Tu supprimes le conteneur → tout disparaît (test clean, rollback, etc.)
+
+# 4. Tu es aligné avec une archi cloud-ready
+
+#     Le brief demande une app scalable et déployable sur Azure / GCP
+#     ✔️ Docker = standard dans le déploiement moderne (CI/CD, devops)
+
+# 5. Tu bosses comme un dev pro
+
+#     Dans les ESN, startups et boîtes IA, tout est Dockerisé
+#     ✔️ C’est une ligne en plus dans ton CV technique
+
+# 😎 Et en vrai...
+
+# → Tu peux ne dockeriser QUE PostgreSQL si tu veux :
+# Pas besoin de mettre FastAPI ou React dans des conteneurs au début.
+# Juste la BDD = déjà utile et propre ✅
+
