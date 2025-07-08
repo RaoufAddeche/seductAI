@@ -1,0 +1,13 @@
+/* 📄 src/App.css */
+.App {
+  text-align: center;
+  padding: 3rem;
+  font-family: sans-serif;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+}
