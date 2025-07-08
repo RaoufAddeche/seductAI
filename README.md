@@ -20,19 +20,28 @@ Le projet repose sur une architecture RAG (Retrieval-Augmented Generation) avec 
 
 ---
 
-## 📦 Fonctionnalités actuelles
+## 🚀 Fonctionnalités principales
 
-### ✅ Agents implémentés
+### ✅ Graphe IA multi-agent (LangGraph)
+- Détection automatique du contexte avec `classifier_agent`
+- Appel dynamique des agents spécialisés :
+  - `agent_message` : rédaction / reformulation de messages
+  - `agent_irl` : conseils face-à-face, dates, appels
+  - `agent_confiance` : posture mentale, confiance, clarté intérieure
+  - `agent_style` : style personnel, présentation, look
+  - `agent_redflag` : détection signaux faibles / ambigus
 
-- `agent_message` : aide à formuler ou analyser des messages, DMs, relances...
-- `agent_confiance` : aide à se recentrer, gagner en assurance, clarifier ses intentions
-- `classifier_agent` : analyse la question de l'utilisateur et route vers un ou plusieurs agents selon le contexte
+### 🧠 Scoring IA sur 4 axes
+À chaque interaction, l'IA attribue un score sur :
+- **Confiance**
+- **Clarté**
+- **Empathie**
+- **Assertivité**
 
-### 🚀 Graphe LangGraph dynamique
-
-- Routing basé sur un prompt intelligent
-- Capable d'enchaîner plusieurs agents si besoin
-- Réponses combinées automatiquement
+### 💾 Sauvegarde des interactions
+Toutes les interactions scorées sont enregistrées en base PostgreSQL :
+```sql
+interactions(question, final_answer, confiance, clarte, empathie, assertivite, created_at)
 
 ---
 
