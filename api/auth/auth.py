@@ -4,7 +4,7 @@
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from api.config import SECRET_KEY
+from config.config import SECRET_KEY
 
 
 ALGORITHM = "HS256"

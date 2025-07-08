@@ -22,14 +22,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 🔗 Import des routers ici, après avoir défini `app`
-from api.routers import auth_router
+from api.routers import auth_router, interactions_router
 
-# 📌 Ajout des routes auth à l'application
+# 📌 Ajout des routes auth + interactions
 app.include_router(auth_router.router)
+app.include_router(interactions_router.router)
+
 
 # 🧪 Route test /ping
 @app.get("/ping")
 def ping():
     print("[DEBUG] /ping appelé")
     return {"message": "SeductAI backend is alive 🔥"}
+
+
+

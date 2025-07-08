@@ -8,10 +8,11 @@ Voici les agents disponibles :
 - agent_irl : pour préparer une interaction en face-à-face, un appel ou un rendez-vous
 - agent_confiance : pour renforcer la confiance, la posture mentale, la clarté intérieure
 - agent_redflag : pour repérer les signaux d’alerte, les comportements toxiques ou ambigus
+- agent_style : pour donner des conseils sur la présentation personnelle (look, posture, langage corporel, style Insta…)
 
 ---
 
 Question utilisateur : {question}
 
-Ta réponse doit être **exclusivement** une **liste JSON** contenant le ou les noms des agents pertinents.
+Ta réponse doit être **exclusivement** une **liste JSON** contenant le ou les noms des agents pertinents.  
 Exemple de réponse attendue : ["agent_message", "agent_confiance"]
