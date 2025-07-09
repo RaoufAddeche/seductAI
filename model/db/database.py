@@ -1,24 +1,24 @@
-# 📄 database.py
-# Sert à initialiser la connexion SQLAlchemy à la base PostgreSQL
+# 📄 database.py — Init SQLAlchemy
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config.config import DATABASE_URL
 
-# 🧱 Base pour les modèles (User, Interaction...)
+# 🧱 Base des modèles
 Base = declarative_base()
 
-# 🔌 Connexion à PostgreSQL via DATABASE_URL (depuis le .env)
+# 🔌 Connexion PostgreSQL
 engine = create_engine(DATABASE_URL)
 
-# 🌀 Créateur de session pour les opérations DB
+# 🎛️ Session locale
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# ⚠️ Import forcé pour que Alembic détecte les modèles (effet de bord)
-from model.db import models
+# ⚠️ Ne pas oublier d'importer tous les modèles pour Alembic
+# ✅ Pour forcer l'import des modèles SANS boucle
+from model.db import models  # 👈 suffit largement
 
-# 🐞 DEBUG (optionnel)
+# 🐞 DEBUG
 if __name__ == "__main__":
     print("[DEBUG] Base et engine initialisés")
     print("DATABASE_URL =", DATABASE_URL)

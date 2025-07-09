@@ -16,10 +16,12 @@ from model.db.utils import save_interaction_to_db  # 💾 Fonction dédiée
 
 # 🧠 State partagé entre les étapes du graphe
 class ClassifierState(TypedDict):
+    user_id: int
     question: str
     response: str
     final_answer: str
     scores: dict
+    agents_used: list[str]
 
 # 🔁 Liste des agents disponibles
 AVAILABLE_AGENTS = {
@@ -54,7 +56,8 @@ def classifier_node(state: ClassifierState) -> ClassifierState:
         "question": question,
         "response": "\n\n".join(responses),
         "final_answer": "",
-        "scores": {}
+        "scores": {},
+        "agents_used": selected_agents
     }
 
 # 🧠 Fusion des réponses
@@ -67,6 +70,9 @@ def final_answer_node(state: ClassifierState) -> ClassifierState:
 def scoring_node(state: ClassifierState) -> ClassifierState:
     question = state.get("question")
     answer = state.get("final_answer")
+    user_id = state.get("user_id")
+
+    agents_used = state.get("agents_used", [])
 
     print("[⚖️] Lancement scoring")
     scores = score_agent_node(question, answer)
@@ -76,7 +82,7 @@ def scoring_node(state: ClassifierState) -> ClassifierState:
 
     # 💾 Enregistrement BDD
     try:
-        save_interaction_to_db(question, answer, scores)
+        save_interaction_to_db(user_id, question, answer, scores, agents_used)
     except Exception as e:
         print("[❌] Erreur lors de la sauvegarde :", e)
 

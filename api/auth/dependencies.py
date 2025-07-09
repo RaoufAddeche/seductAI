@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from config.config import SECRET_KEY
 from api.db.session import SessionLocal
-from api.models.user import User
+from model.db.models import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 ALGORITHM = "HS256"
@@ -20,7 +20,7 @@ def get_db():
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     from jose import JWTError
-    from api.models.user import User
+    from model.db.models import User
 
     credentials_exception = HTTPException(status_code=401, detail="Invalid credentials")
     try:

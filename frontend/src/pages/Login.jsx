@@ -1,10 +1,12 @@
 // 📄 src/pages/Login.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"
 import { loginUser } from "../services/api";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -12,6 +14,7 @@ function Login() {
       const data = await loginUser(email, password);
       localStorage.setItem("token", data.access_token);
       alert("Connexion réussie ✅");
+      navigate("/dashboard");
       // Redirige vers la page profil (à faire plus tard)
     } catch (error) {
       alert("Erreur lors de la connexion ❌");

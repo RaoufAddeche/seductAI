@@ -19,6 +19,7 @@ pypdf
 langchain-ollama
 langchain-huggingface
 langchain-chroma
+python-multipart
 
 
 # 🧠 Core IA & LLM

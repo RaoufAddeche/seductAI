@@ -1,8 +1,8 @@
-"""init users and interactions
+"""Ajout agents_used dans Interaction
 
-Revision ID: a82ed442c82c
-Revises: 
-Create Date: 2025-07-08 00:48:35.749392
+Revision ID: 574eed4befc1
+Revises: e87ed045cca6
+Create Date: 2025-07-09 23:23:40.200365
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'a82ed442c82c'
-down_revision: Union[str, Sequence[str], None] = None
+revision: str = '574eed4befc1'
+down_revision: Union[str, Sequence[str], None] = 'e87ed045cca6'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

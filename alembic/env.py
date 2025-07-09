@@ -1,8 +1,7 @@
 # 📄 env.py — Configuration Alembic
-# Permet d’inclure TOUS les modèles du projet (API + Graph)
 
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool, MetaData
+from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # 🔧 Configuration de logging
@@ -10,20 +9,13 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# 📌 Importer les bases des modèles
-from api.models.user import Base as UserBase
-from model.db.models import Base as ModelBase  # contient Interaction
+# 📄 alembic/env.py
+from model.db.database import Base
+from model.db import models  # 👈 import des modèles pour déclencher le mapping
 
-# 🔗 Fusionner toutes les metadata
-combined_metadata = MetaData()
-for base in [UserBase, ModelBase]:
-    for table in base.metadata.tables.values():
-        table.tometadata(combined_metadata)
 
-# 🧠 C’est cette metadata qui sera utilisée par Alembic
-target_metadata = combined_metadata
+target_metadata = Base.metadata  # ✅ pas besoin de fusionner manuellement
 
-# 🔁 Mode offline
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -35,7 +27,6 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
-# 🔁 Mode online
 def run_migrations_online() -> None:
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
@@ -50,7 +41,6 @@ def run_migrations_online() -> None:
         with context.begin_transaction():
             context.run_migrations()
 
-# 🚀 Exécution selon le mode
 if context.is_offline_mode():
     run_migrations_offline()
 else:
