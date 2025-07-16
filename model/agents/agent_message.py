@@ -4,9 +4,10 @@
 from model.retrievers.message_retriever import get_message_retriever
 from langchain.prompts import PromptTemplate
 from langchain_ollama import OllamaLLM
+from model.agents.llm_loader import get_llm
 
-llm = OllamaLLM(model="mistral")
 
+llm = get_llm()
 
 # 📥 Chargement du prompt
 with open("model/prompts/message_prompt.txt", "r") as f:
@@ -30,6 +31,6 @@ def agent_message_node(question: str) -> str:
 
     response = llm.invoke(full_prompt)
     print("[✅] Réponse générée :")
-    print(response)
+    print(response.content)
 
-    return response
+    return response.content

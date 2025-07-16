@@ -5,7 +5,7 @@ const BASE_URL = "http://localhost:8000";
 // 👤 Inscription
 export async function registerUser(userData) {
   try {
-    const response = await fetch(`${BASE_URL}/signup`, {
+    const response = await fetch(`${BASE_URL}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),

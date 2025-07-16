@@ -22,12 +22,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from api.routers import auth_router, interactions_router, ask_router
+from api.routers import auth_router, interactions_router, ask_router, progression_router
 
 # 📌 Ajout des routes auth + interactions
 app.include_router(auth_router.router)
 app.include_router(interactions_router.router)
 app.include_router(ask_router.router)
+app.include_router(progression_router.router)
 
 
 

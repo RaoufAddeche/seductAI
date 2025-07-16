@@ -20,7 +20,7 @@ langchain-ollama
 langchain-huggingface
 langchain-chroma
 python-multipart
-
+langchain-groq
 
 # 🧠 Core IA & LLM
 langchain==0.1.14

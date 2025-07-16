@@ -4,9 +4,10 @@
 from langchain.prompts import PromptTemplate
 from langchain_ollama import OllamaLLM
 import json
+from model.agents.llm_loader import get_llm
 
-# 🔮 LLM de scoring
-llm = OllamaLLM(model="mistral")
+
+llm = get_llm()
 
 # 📄 Chargement du prompt
 with open("model/prompts/score_prompt.txt", "r") as f:
@@ -25,7 +26,7 @@ def score_agent_node(question: str, answer: str) -> dict:
     print("[DEBUG] Réponse brute du LLM (scoring) :\n", response)
 
     try:
-        scores = json.loads(response)
+        scores = json.loads(response.content)
         assert all(k in scores for k in ["confiance", "clarte", "empathie", "assertivite"])
     except Exception as e:
         print("[❌] Erreur parsing JSON :", e)

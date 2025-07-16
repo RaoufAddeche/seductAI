@@ -5,9 +5,10 @@ from model.retrievers.message_retriever import get_message_retriever  # 🧠 tem
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import OllamaLLM
 from langchain.prompts import PromptTemplate
+from model.agents.llm_loader import get_llm
 
-# 🔹 LLM via Ollama
-llm = OllamaLLM(model="mistral")
+
+llm = get_llm()
 
 # 📥 Chargement du prompt
 with open("model/prompts/redflag_prompt.txt", "r") as f:
@@ -30,6 +31,6 @@ def agent_redflag_node(question: str) -> str:
     full_prompt = prompt.format(context=context, question=question)
 
     response = llm.invoke(full_prompt)
-    print("[✅] Réponse redflag générée :\n", response)
+    print("[✅] Réponse redflag générée :\n", response.content)
 
-    return response
+    return response.content
