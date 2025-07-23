@@ -1,5 +1,6 @@
-// 📄 src/services/api.js
-// 📄 src/services/api.js
+// ✅ TOUS LES IMPORTS EN HAUT
+import axios from "axios";
+
 const BASE_URL = "http://localhost:8000";
 
 // 👤 Inscription
@@ -44,3 +45,21 @@ export async function loginUser(email, password) {
     throw error;
   }
 }
+
+// 📦 Appels API génériques via axios
+const api = axios.create({
+  baseURL: BASE_URL,
+});
+
+// 🔐 Ajout automatique du token dans les headers
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// ✅ Export global
+export default api;

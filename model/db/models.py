@@ -41,10 +41,13 @@ class Interaction(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
+
     question = Column(String, nullable=False)
     final_answer = Column(String, nullable=False)
 
-    agents_used = Column(ARRAY(String), default="[]")
+    agents_used = Column(ARRAY(String), default=[], nullable=False)
+    status = Column(String, default="open")
+
     confiance = Column(Float)
     clarte = Column(Float)
     empathie = Column(Float)
@@ -53,6 +56,8 @@ class Interaction(Base):
     creativite = Column(Float)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now(), default=func.now())
+
 
     # 🔁 Relations
     user = relationship("User", back_populates="interactions")

@@ -1,16 +1,16 @@
-# 📦 schemas.py — Pydantic models (entrées/sorties API)
+# 📦 schemas.py — Pydantic models (entrées/sorties API, version enrichie & robuste)
 
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional,Dict,List
+from typing import Optional, Dict, List, Literal
 from datetime import datetime
 
-# ✅ Requête d'inscription
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
+# === Utilisateur ===
 
-# ✅ Réponse utilisateur
+class UserCreate(BaseModel):
+    username: str = Field(..., description="Nom d'utilisateur unique")
+    email: EmailStr = Field(..., description="Adresse email de l'utilisateur")
+    password: str = Field(..., description="Mot de passe (hashé côté backend)")
+
 class UserOut(BaseModel):
     id: int
     username: str
@@ -27,7 +27,6 @@ class UserOut(BaseModel):
     class Config:
         orm_mode = True
 
-# ✅ Schéma de mise à jour profil (ce que l’utilisateur peut modifier)
 class UserUpdate(BaseModel):
     username: Optional[str]
     age: Optional[int]
@@ -37,24 +36,23 @@ class UserUpdate(BaseModel):
     centre_interets: Optional[List[str]] = Field(default_factory=list)
     situation: Optional[str]
 
+# === Auth ===
 
-# ✅ Token de réponse
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+# === Thread & messages ===
 
-# 🧠 Nouveau format d’un message dans le thread
 class MessageItem(BaseModel):
-    role: str  # "user" ou "assistant"
-    content: str
+    role: Optional[Literal["user", "assistant", "agent", "fusion"]] = Field(None, description="Type d'émetteur")
+    sender: Optional[str] = Field(None, description="Nom de l'agent IA ou 'user'")
+    content: str = Field(..., description="Texte du message")
 
-
-# ✅ Données d'entrée pour une interaction
 class InteractionCreate(BaseModel):
-    question: str
-    final_answer: str
-    messages: List[MessageItem]
+    question: str = Field("", description="Question de départ (optionnel)")
+    final_answer: str = Field("", description="Réponse IA finale (optionnel)")
+    messages: List[MessageItem] = Field(default_factory=list, description="Fil de discussion")
     confiance: Optional[float] = None
     clarte: Optional[float] = None
     empathie: Optional[float] = None
@@ -62,9 +60,6 @@ class InteractionCreate(BaseModel):
     authenticite: Optional[float] = None
     creativite: Optional[float] = None
 
-
-
-# ✅ Réponse complète pour une interaction
 class InteractionOut(BaseModel):
     id: int
     user_id: int
@@ -77,26 +72,24 @@ class InteractionOut(BaseModel):
     assertivite: Optional[float]
     authenticite: Optional[float]
     creativite: Optional[float]
-
-    agents_used: List[str]
+    agents_used: List[str]  # Si tu veux : List[Literal["agent_message", ...]]
     created_at: datetime
 
     class Config:
         orm_mode = True
 
+# === Requête/réponse IA ===
 
-# 📩 Input utilisateur
 class AskRequest(BaseModel):
-    question: str
+    question: str = Field(..., description="Message envoyé à l'IA (prompt utilisateur)")
 
-# 📤 Réponse finale
 class AskResponse(BaseModel):
-    final_answer: str
-    scores: Dict[str, float]
-    agents_used: List[str]
+    final_answer: str = Field(..., description="Réponse générée par l'IA")
+    scores: Dict[str, float] = Field(..., description="Dictionnaire des scores par axe relationnel")
+    agents_used: List[str] = Field(..., description="Liste des agents IA sollicités")
 
+# === Progression / scoring ===
 
-# 📤 Pour afficher les scores cumulés d’un utilisateur
 class UserScoreOut(BaseModel):
     user_id: int
     confiance: float
@@ -110,10 +103,11 @@ class UserScoreOut(BaseModel):
     class Config:
         orm_mode = True
 
+# === CRUD message individuel ===
 
 class MessageCreate(BaseModel):
-    interaction_id : int
-    sender: str  # "user" ou "ai"
+    interaction_id: int = Field(..., description="ID du thread cible")
+    sender: str = Field(..., description="'user' ou nom d'agent IA")
     content: str
 
 class MessageRead(BaseModel):
@@ -122,7 +116,7 @@ class MessageRead(BaseModel):
     sender: str
     content: str
     timestamp: datetime
-    role: Optional[str]  # ← ici si tu veux exposer le rôle aussi
+    role: Optional[str]  # Peut-être "user", "assistant", etc.
 
     class Config:
         orm_mode = True

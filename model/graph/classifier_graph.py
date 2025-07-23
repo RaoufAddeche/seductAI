@@ -1,9 +1,10 @@
-# 📄 classifier_graph.py
-# Graphe LangGraph piloté par le classifier_agent
+# 📄 classifier_graph.py — Graphe LangGraph orchestré via classifier_agent
 
 from typing import TypedDict
+from datetime import datetime
 from langgraph.graph import StateGraph
 
+# Agents IA
 from model.agents.agent_classifier import classifier_agent_node
 from model.agents.agent_message import agent_message_node
 from model.agents.agent_redflag import agent_redflag_node
@@ -12,21 +13,24 @@ from model.agents.agent_confiance import agent_confiance_node
 from model.agents.agent_style import agent_style_node
 from model.agents.score_agent import score_agent_node
 
-from model.db.utils import save_interaction_to_db, save_message_to_db  # ✅ on utilise la version SQLAlchemy
+# Utils DB
+from model.db.utils import (
+    save_interaction_to_db,
+    save_message_to_db,
+    get_or_create_open_interaction
+)
 
-
-# 🧠 État partagé entre les étapes du graphe
+# 🧠 État partagé entre les étapes
 class ClassifierState(TypedDict):
     user_id: int
-    question: str
+    messages: list[dict]      # Toute la discussion !
     response: str
     final_answer: str
     scores: dict
     agents_used: list[str]
-    interaction_id: int | None  # 👈 sera défini après scoring
+    interaction_id: int
 
-
-# 🧠 Agents disponibles dans le graphe
+# 🧠 Agents disponibles
 AVAILABLE_AGENTS = {
     "agent_message": agent_message_node,
     "agent_redflag": agent_redflag_node,
@@ -35,97 +39,109 @@ AVAILABLE_AGENTS = {
     "agent_style": agent_style_node
 }
 
-
-# 🔁 Étape 1 : Classifier → sélection des agents et réponses
+# 🚪 Entrée du graphe — création ou récupération d’interaction
 def classifier_node(state: ClassifierState) -> ClassifierState:
-    question = state["question"]
+    messages = state["messages"]
     user_id = state["user_id"]
 
-    print("[DEBUG] Question envoyée au classifier :", question)
-    selected_agents = classifier_agent_node(question)
+    print("[DEBUG] Historique complet transmis :", messages)
+
+    # 👉 Dernier message utilisateur
+    last_user_message = next(
+        (m["content"] for m in reversed(messages) if m.get("role", "user") == "user"), None
+    )
+    if not last_user_message:
+        raise RuntimeError("❌ Aucun message utilisateur trouvé pour classifieur.")
+
+    # 🧠 Appel du classifieur (détecte les agents à activer)
+    selected_agents = classifier_agent_node(last_user_message)
     print("[✅] Agents identifiés :", selected_agents)
 
-    responses = []
+    # 📦 Récupération ou création de l’interaction (ouverte depuis < 20 min)
+    interaction = get_or_create_open_interaction(user_id)
+    if not interaction:
+        raise RuntimeError("❌ Impossible de créer ou récupérer une interaction valide.")
+    interaction_id = interaction.id
+    print(f"[✅] Interaction active : {interaction_id}")
 
+    # 🤖 Appel des agents sélectionnés (PAS de sauvegarde des réponses agents dans le thread user)
+    responses = []
     for agent_name in selected_agents:
         agent_func = AVAILABLE_AGENTS.get(agent_name)
         if agent_func:
-            print(f"[⚙️] Appel de l'agent {agent_name}")
-            response = agent_func(question)
+            # Passe tout le thread (messages) à agent_message uniquement
+            if agent_name == "agent_message":
+                print(f"[DEBUG] Appel de {agent_name} avec contexte complet")
+                response = agent_func(messages)
+            else:
+                print(f"[DEBUG] Appel de {agent_name} avec input : {last_user_message}")
+                response = agent_func(last_user_message)
             responses.append(f"[{agent_name}] {response}")
-
-            # 💾 Sauvegarde de la réponse agent dans la base (pas encore d'interaction_id)
-            try:
-                save_message_to_db(
-                    interaction_id=None,
-                    sender=agent_name,
-                    content=response,
-                    user_id=user_id,
-                    role="assistant"
-                )
-            except Exception as e:
-                print(f"[❌] Erreur save_message_to_db pour {agent_name} :", e)
         else:
             print(f"[⚠️] Agent {agent_name} non trouvé.")
 
+    # On NE sauvegarde pas les réponses intermédiaires dans le chat ici
+    # Uniquement la réponse finale/fusionnée plus loin
+
     return {
         "user_id": user_id,
-        "question": question,
+        "messages": messages,
         "response": "\n\n".join(responses),
         "final_answer": "",
         "scores": {},
         "agents_used": selected_agents,
-        "interaction_id": None
+        "interaction_id": interaction_id
     }
 
-
-# 🧠 Étape 2 : Fusionner toutes les réponses
 def final_answer_node(state: ClassifierState) -> ClassifierState:
     print("[🧠] Fusion des réponses")
     state["final_answer"] = state["response"]
     return state
 
-
-# ⚖️ Étape 3 : Scoring + Sauvegarde de l’interaction + message final
 def scoring_node(state: ClassifierState) -> ClassifierState:
-    question = state["question"]
+    messages = state["messages"]
     answer = state["final_answer"]
     user_id = state["user_id"]
     agents_used = state.get("agents_used", [])
+    interaction_id = state["interaction_id"]
+
+    # Dernier message utilisateur pour scoring
+    last_user_message = next(
+        (m["content"] for m in reversed(messages) if m.get("role", "user") == "user"), None
+    )
 
     print("[⚖️] Lancement scoring")
-    scores = score_agent_node(question, answer)
+    scores = score_agent_node(last_user_message, answer)
     print("[DEBUG] Scores générés :", scores)
     state["scores"] = scores
 
-    # 💾 Sauvegarde de l’interaction complète
+    # 💾 Mise à jour finale de l’interaction
     try:
-        interaction_id = save_interaction_to_db(
+        save_interaction_to_db(
             user_id=user_id,
-            question=question,
+            question=last_user_message,
             final_answer=answer,
             scores=scores,
-            agents_used=agents_used
+            agents_used=agents_used,
+            interaction_id=interaction_id
         )
-        state["interaction_id"] = interaction_id
-        print("[✅] Interaction sauvegardée avec ID :", interaction_id)
+        print("[✅] Interaction mise à jour avec ID :", interaction_id)
 
-        # 💬 Sauvegarde du message final (réponse fusionnée)
+        # ✅ Seule la réponse FINALE/fusionnée est enregistrée dans le fil utilisateur
         save_message_to_db(
             interaction_id=interaction_id,
-            sender="fusion",
+            sender="assistant",
             content=answer,
             user_id=user_id,
-            role="assistant"
+            role="assistant",
+            timestamp=datetime.utcnow()
         )
-
     except Exception as e:
         print("[❌] Erreur sauvegarde interaction/message final :", e)
 
     return state
 
-
-# 🛠️ Compilation du graphe LangGraph
+# 🧠 Compilation du graphe LangGraph
 graph_builder = StateGraph(ClassifierState)
 
 graph_builder.add_node("classifier_router", classifier_node)
