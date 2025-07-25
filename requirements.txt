@@ -10,7 +10,8 @@ pydantic
 dotenv
 sqlalchemy.orm
 sqlalchemy.ext
-python-jose passlib[bcrypt]
+python-jose 
+passlib[bcrypt]
 pydantic[email]
 bcrypt==4.0.1
 langchain-community 

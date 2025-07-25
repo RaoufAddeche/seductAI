@@ -2,7 +2,7 @@
 
 from typing import TypedDict
 from datetime import datetime
-from langgraph.graph import StateGraph
+from langgraph.graph import StateGraph #StateMessage?
 
 # Agents IA
 from model.agents.agent_classifier import classifier_agent_node
